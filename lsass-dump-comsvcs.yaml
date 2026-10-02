@@ -1,0 +1,30 @@
+id: S1H-0003
+title: LSASS memory dump via comsvcs.dll or ProcDump
+title_pt: Dump de memória do LSASS via comsvcs.dll ou ProcDump
+description: >
+  Detects the living-off-the-land technique of dumping LSASS with
+  rundll32 + comsvcs.dll MiniDump, or ProcDump targeting lsass.
+description_pt: >
+  Detecta a técnica living-off-the-land de dump do LSASS com
+  rundll32 + comsvcs.dll MiniDump, ou ProcDump apontado para o lsass.
+author: Gustavo Baldwin
+version: 1.0.0
+status: experimental
+operating_system: windows
+mitre:
+  tactic: credential-access
+  techniques: [T1003.001]
+query: |
+  event.type = "Process Creation"
+  and (
+    (tgt.process.cmdline contains:anycase "comsvcs" and tgt.process.cmdline contains:anycase "minidump")
+    or (tgt.process.name in:anycase ("procdump.exe", "procdump64.exe") and tgt.process.cmdline contains:anycase "lsass")
+  )
+false_positives:
+  - Very rare. Possible during authorized troubleshooting by Microsoft support.
+tuning:
+  - Treat any hit as high priority and investigate the parent process.
+created: 2026-10-02
+updated: 2026-10-02
+references:
+  - https://attack.mitre.org/techniques/T1003/001/

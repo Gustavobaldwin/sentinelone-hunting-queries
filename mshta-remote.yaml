@@ -1,0 +1,26 @@
+id: S1H-0007
+title: Mshta executing remote or inline script
+title_pt: Mshta executando script remoto ou inline
+description: >
+  mshta.exe with an http(s) URL or inline javascript/vbscript in the command line.
+description_pt: >
+  mshta.exe com URL http(s) ou javascript/vbscript inline na linha de comando.
+author: Gustavo Baldwin
+version: 1.0.0
+status: experimental
+operating_system: windows
+mitre:
+  tactic: defense-evasion
+  techniques: [T1218.005]
+query: |
+  event.type = "Process Creation"
+  and tgt.process.name = "mshta.exe"
+  and tgt.process.cmdline contains:anycase ("http://", "https://", "javascript:", "vbscript:")
+false_positives:
+  - Legacy HTA-based internal tools (should be rare in 2026).
+tuning:
+  - Consider blocking mshta.exe via ASR or AppLocker if there are no hits for 30 days.
+created: 2026-10-02
+updated: 2026-10-02
+references:
+  - https://attack.mitre.org/techniques/T1218/005/

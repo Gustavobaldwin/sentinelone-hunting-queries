@@ -1,0 +1,29 @@
+id: S1H-0013
+title: Unapproved remote access / RMM tool execution
+title_pt: Execução de ferramenta de acesso remoto não homologada
+description: >
+  AnyDesk, TeamViewer, ScreenConnect, ngrok and similar tools are frequently
+  abused for hands-on-keyboard access. Hunt for the ones you do not use.
+description_pt: >
+  AnyDesk, TeamViewer, ScreenConnect, ngrok e similares são muito abusados
+  para acesso hands-on-keyboard. Caça as que tu não usa oficialmente.
+author: Gustavo Baldwin
+version: 1.0.0
+status: experimental
+operating_system: windows
+mitre:
+  tactic: command-and-control
+  techniques: [T1219, T1572]
+query: |
+  event.type = "Process Creation"
+  and tgt.process.name in:anycase ("anydesk.exe", "teamviewer.exe", "screenconnect.windowsclient.exe", "atera_agent.exe", "rustdesk.exe", "ngrok.exe", "splashtop.exe", "meshagent.exe")
+  | group runs = count() by endpoint.name, tgt.process.name
+  | sort -runs
+false_positives:
+  - Your own approved RMM tool. Remove it from the list.
+tuning:
+  - Keep this list aligned with your remote access policy.
+created: 2026-10-02
+updated: 2026-10-02
+references:
+  - https://attack.mitre.org/techniques/T1219/

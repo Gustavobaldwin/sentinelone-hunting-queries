@@ -1,0 +1,7 @@
+# Never commit real hunt results / tenant exports
+exports/
+*.csv
+*.json.export
+*.xlsx
+.venv/
+__pycache__/

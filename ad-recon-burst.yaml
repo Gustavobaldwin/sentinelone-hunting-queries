@@ -1,0 +1,30 @@
+id: S1H-0009
+title: Active Directory reconnaissance burst per endpoint
+title_pt: Rajada de reconhecimento de Active Directory por endpoint
+description: >
+  Aggregates classic AD discovery commands per endpoint and user. A single
+  command is noise; several in the same window is a hunting lead.
+description_pt: >
+  Agrega comandos clássicos de descoberta de AD por endpoint e usuário. Um
+  comando sozinho é ruído; vários na mesma janela é pista de caça.
+author: Gustavo Baldwin
+version: 1.0.0
+status: experimental
+operating_system: windows
+mitre:
+  tactic: discovery
+  techniques: [T1087.002, T1069.002, T1482]
+query: |
+  event.type = "Process Creation"
+  and tgt.process.cmdline contains:anycase ("group \"domain admins\"", "group \"enterprise admins\"", "nltest /dclist", "nltest /domain_trusts", "whoami /all", "net user /domain", "dsquery", "adfind")
+  | group hits = count() by endpoint.name, src.process.user
+  | filter hits >= 3
+  | sort -hits
+false_positives:
+  - IT staff troubleshooting. Filter your own admin accounts.
+tuning:
+  - Adjust the threshold (hits >= 3) and the time window to your environment.
+created: 2026-10-02
+updated: 2026-10-02
+references:
+  - https://attack.mitre.org/techniques/T1087/002/

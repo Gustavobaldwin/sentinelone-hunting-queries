@@ -1,0 +1,29 @@
+id: S1H-0001
+title: PowerShell with encoded command
+title_pt: PowerShell com comando codificado
+description: >
+  Detects PowerShell launched with -EncodedCommand, a common way to hide
+  malicious payloads from command-line inspection.
+description_pt: >
+  Detecta PowerShell iniciado com -EncodedCommand, técnica comum para esconder
+  payloads maliciosos da inspeção de linha de comando.
+author: Gustavo Baldwin
+version: 1.0.0
+status: experimental
+operating_system: windows
+mitre:
+  tactic: execution
+  techniques: [T1059.001, T1027]
+query: |
+  event.type = "Process Creation"
+  and tgt.process.name in:anycase ("powershell.exe", "pwsh.exe")
+  and tgt.process.cmdline matches "(?i)\s-(e|en|enc|enco|encod|encode|encoded|encodedc|encodedcommand)\s"
+false_positives:
+  - Management tools (SCCM, RMM agents) that wrap scripts in base64.
+  - Some installers from legitimate vendors.
+tuning:
+  - Exclude known parents with "and not src.process.name in:anycase (...)".
+created: 2026-10-02
+updated: 2026-10-02
+references:
+  - https://attack.mitre.org/techniques/T1059/001/

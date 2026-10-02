@@ -1,0 +1,27 @@
+id: S1H-0008
+title: Microsoft Defender disabled via PowerShell
+title_pt: Microsoft Defender desativado via PowerShell
+description: >
+  Set-MpPreference / Add-MpPreference used to disable real-time protection or
+  add broad exclusions, often seen right before payload delivery.
+description_pt: >
+  Set-MpPreference / Add-MpPreference usados para desligar a proteção em tempo
+  real ou adicionar exclusões amplas, comum logo antes da entrega do payload.
+author: Gustavo Baldwin
+version: 1.0.0
+status: experimental
+operating_system: windows
+mitre:
+  tactic: defense-evasion
+  techniques: [T1562.001]
+query: |
+  event.type = "Process Creation"
+  and tgt.process.cmdline contains:anycase ("DisableRealtimeMonitoring", "DisableBehaviorMonitoring", "DisableIOAVProtection", "Add-MpPreference -ExclusionPath", "Add-MpPreference -ExclusionProcess")
+false_positives:
+  - Endpoints where SentinelOne is primary AV and Defender is disabled by policy (check Intune first).
+tuning:
+  - Exclude the Intune/SCCM management extension parent if that is how your baseline is applied.
+created: 2026-10-02
+updated: 2026-10-02
+references:
+  - https://attack.mitre.org/techniques/T1562/001/

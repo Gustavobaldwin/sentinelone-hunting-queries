@@ -1,0 +1,28 @@
+id: S1H-0002
+title: Office application spawning a shell or script host
+title_pt: Aplicativo do Office abrindo shell ou interpretador de script
+description: >
+  Word, Excel, PowerPoint or Outlook starting cmd, PowerShell, wscript, mshta
+  and similar. Classic sign of a malicious macro or weaponized attachment.
+description_pt: >
+  Word, Excel, PowerPoint ou Outlook iniciando cmd, PowerShell, wscript, mshta
+  e afins. Sinal clássico de macro maliciosa ou anexo armado.
+author: Gustavo Baldwin
+version: 1.0.0
+status: experimental
+operating_system: windows
+mitre:
+  tactic: initial-access
+  techniques: [T1566.001, T1204.002]
+query: |
+  event.type = "Process Creation"
+  and src.process.name in:anycase ("winword.exe", "excel.exe", "powerpnt.exe", "outlook.exe", "onenote.exe")
+  and tgt.process.name in:anycase ("cmd.exe", "powershell.exe", "pwsh.exe", "wscript.exe", "cscript.exe", "mshta.exe", "rundll32.exe", "regsvr32.exe")
+false_positives:
+  - Legitimate macros or add-ins in finance/controllership teams.
+tuning:
+  - Baseline for 7 days and exclude known command lines per add-in.
+created: 2026-10-02
+updated: 2026-10-02
+references:
+  - https://attack.mitre.org/techniques/T1566/001/

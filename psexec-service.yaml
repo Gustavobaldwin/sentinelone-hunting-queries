@@ -1,0 +1,27 @@
+id: S1H-0011
+title: PsExec-style remote service execution
+title_pt: Execução remota via serviço estilo PsExec
+description: >
+  PSEXESVC, PAExec or RemCom service binaries spawning processes on the
+  target host, typical of lateral movement.
+description_pt: >
+  Serviços PSEXESVC, PAExec ou RemCom abrindo processos no host alvo,
+  típico de movimentação lateral.
+author: Gustavo Baldwin
+version: 1.0.0
+status: experimental
+operating_system: windows
+mitre:
+  tactic: lateral-movement
+  techniques: [T1021.002, T1569.002]
+query: |
+  event.type = "Process Creation"
+  and src.process.name in:anycase ("psexesvc.exe", "paexec.exe", "remcomsvc.exe", "csexecsvc.exe")
+false_positives:
+  - Sysadmins using PsExec legitimately (document who and from where).
+tuning:
+  - Renamed services evade name matching; pivot on the SMB source IP to find patient zero.
+created: 2026-10-02
+updated: 2026-10-02
+references:
+  - https://attack.mitre.org/techniques/T1021/002/

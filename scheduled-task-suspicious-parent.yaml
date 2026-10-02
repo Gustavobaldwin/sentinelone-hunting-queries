@@ -1,0 +1,29 @@
+id: S1H-0004
+title: Scheduled task created by a script host or Office app
+title_pt: Tarefa agendada criada por interpretador de script ou Office
+description: >
+  schtasks /create launched from parents that normally never create tasks,
+  such as script hosts, mshta or Office applications.
+description_pt: >
+  schtasks /create iniciado por processos pai que normalmente não criam
+  tarefas, como interpretadores de script, mshta ou apps do Office.
+author: Gustavo Baldwin
+version: 1.0.0
+status: experimental
+operating_system: windows
+mitre:
+  tactic: persistence
+  techniques: [T1053.005]
+query: |
+  event.type = "Process Creation"
+  and tgt.process.name = "schtasks.exe"
+  and tgt.process.cmdline contains:anycase "/create"
+  and src.process.name in:anycase ("wscript.exe", "cscript.exe", "mshta.exe", "powershell.exe", "pwsh.exe", "winword.exe", "excel.exe", "rundll32.exe")
+false_positives:
+  - Admin scripts that register tasks through PowerShell (common in GPO/Intune remediations).
+tuning:
+  - Exclude known task names with "and not tgt.process.cmdline contains:anycase (...)".
+created: 2026-10-02
+updated: 2026-10-02
+references:
+  - https://attack.mitre.org/techniques/T1053/005/

@@ -1,0 +1,27 @@
+id: S1H-0010
+title: Local account created or added to Administrators
+title_pt: Conta local criada ou adicionada aos Administradores
+description: >
+  net user /add or net localgroup administrators /add executed on an endpoint.
+description_pt: >
+  net user /add ou net localgroup administrators /add executado em um endpoint.
+author: Gustavo Baldwin
+version: 1.0.0
+status: experimental
+operating_system: windows
+mitre:
+  tactic: persistence
+  techniques: [T1136.001, T1098]
+query: |
+  event.type = "Process Creation"
+  and tgt.process.name in:anycase ("net.exe", "net1.exe")
+  and tgt.process.cmdline contains:anycase "/add"
+  and tgt.process.cmdline contains:anycase ("user", "localgroup")
+false_positives:
+  - Imaging/provisioning scripts and LAPS-related workflows.
+tuning:
+  - Correlate with logins of the new account in the following 24h.
+created: 2026-10-02
+updated: 2026-10-02
+references:
+  - https://attack.mitre.org/techniques/T1136/001/

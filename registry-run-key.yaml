@@ -1,0 +1,28 @@
+id: S1H-0005
+title: Run/RunOnce registry key set from a user-writable path
+title_pt: Chave Run/RunOnce gravada por processo em pasta do usuário
+description: >
+  Changes to Run/RunOnce keys made by processes running from user-writable
+  locations (AppData, Temp, Public, Downloads).
+description_pt: >
+  Alterações em chaves Run/RunOnce feitas por processos rodando de pastas
+  graváveis pelo usuário (AppData, Temp, Public, Downloads).
+author: Gustavo Baldwin
+version: 1.0.0
+status: experimental
+operating_system: windows
+mitre:
+  tactic: persistence
+  techniques: [T1547.001]
+query: |
+  event.category = "registry"
+  and registry.keyPath contains:anycase ("CurrentVersion\\Run", "CurrentVersion\\RunOnce")
+  and src.process.image.path contains:anycase ("\\AppData\\", "\\Temp\\", "\\Users\\Public\\", "\\Downloads\\")
+false_positives:
+  - Per-user apps that install in AppData (Teams classic, Zoom, Spotify, Discord).
+tuning:
+  - Exclude signed publishers you trust using src.process.publisher.
+created: 2026-10-02
+updated: 2026-10-02
+references:
+  - https://attack.mitre.org/techniques/T1547/001/

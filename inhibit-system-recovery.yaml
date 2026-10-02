@@ -1,0 +1,32 @@
+id: S1H-0012
+title: Shadow copies or backups deleted (ransomware precursor)
+title_pt: Shadow copies ou backups apagados (precursor de ransomware)
+description: >
+  vssadmin, wmic, wbadmin or bcdedit used to destroy recovery options. Almost
+  always seen minutes before ransomware encryption.
+description_pt: >
+  vssadmin, wmic, wbadmin ou bcdedit usados para destruir opções de
+  recuperação. Quase sempre aparece minutos antes da criptografia do ransomware.
+author: Gustavo Baldwin
+version: 1.0.0
+status: experimental
+operating_system: windows
+mitre:
+  tactic: impact
+  techniques: [T1490]
+query: |
+  event.type = "Process Creation"
+  and (
+    (tgt.process.name = "vssadmin.exe" and tgt.process.cmdline contains:anycase ("delete shadows", "resize shadowstorage"))
+    or (tgt.process.name = "wmic.exe" and tgt.process.cmdline contains:anycase "shadowcopy delete")
+    or (tgt.process.name = "wbadmin.exe" and tgt.process.cmdline contains:anycase ("delete catalog", "delete systemstatebackup"))
+    or (tgt.process.name = "bcdedit.exe" and tgt.process.cmdline contains:anycase ("recoveryenabled no", "bootstatuspolicy ignoreallfailures"))
+  )
+false_positives:
+  - Backup software rotating its own snapshots (check the parent process).
+tuning:
+  - Good candidate to become a STAR custom rule with automatic network quarantine.
+created: 2026-10-02
+updated: 2026-10-02
+references:
+  - https://attack.mitre.org/techniques/T1490/

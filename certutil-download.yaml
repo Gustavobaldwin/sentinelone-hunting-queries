@@ -1,0 +1,26 @@
+id: S1H-0006
+title: Certutil used to download or decode files
+title_pt: Certutil usado para baixar ou decodificar arquivos
+description: >
+  certutil.exe abused as a downloader (-urlcache, -split) or base64 decoder.
+description_pt: >
+  certutil.exe abusado como downloader (-urlcache, -split) ou decodificador base64.
+author: Gustavo Baldwin
+version: 1.0.0
+status: experimental
+operating_system: windows
+mitre:
+  tactic: defense-evasion
+  techniques: [T1105, T1140]
+query: |
+  event.type = "Process Creation"
+  and tgt.process.name = "certutil.exe"
+  and tgt.process.cmdline contains:anycase ("urlcache", "-split", "-decode", "-decodehex", "verifyctl")
+false_positives:
+  - Rare. Some PKI administration scripts use -decode.
+tuning:
+  - Pivot on dst.ip.address and event.dns.request from the same process.
+created: 2026-10-02
+updated: 2026-10-02
+references:
+  - https://attack.mitre.org/techniques/T1105/
